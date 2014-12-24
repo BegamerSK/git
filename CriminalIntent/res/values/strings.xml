@@ -11,4 +11,5 @@
 	<string name="crime_solved_lable">Solved?</string>
 	<string name="crime_title">Crime title</string>
 	<string name="crime_date">Crime date</string>
+	<string name="date_picker_title">Date of crime:</string>
 </resources>
