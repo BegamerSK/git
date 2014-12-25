@@ -1,7 +1,10 @@
 package com.sk.criminalintent;
 
+import java.util.Date;
 import java.util.UUID;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -26,6 +29,7 @@ public class CrimeFragment extends Fragment {
 	
 	public static final String EXTRA_CRIME_ID = "com.sk.crime.id";
 	private static final String DIALOG_DATE = "com.sk.date";
+	private static final int REQUEST_DATE = 0;
 	
 	
 	public static CrimeFragment newInstance(UUID id){
@@ -42,6 +46,18 @@ public class CrimeFragment extends Fragment {
 		//UUID id = (UUID) getActivity().getIntent().getSerializableExtra(EXTRA_CRIME_ID);
 		UUID id = (UUID) getArguments().getSerializable(EXTRA_CRIME_ID);
 		mCrime = CrimeLab.get(getActivity()).getCrime(id);
+	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if(resultCode!=Activity.RESULT_OK){
+			return;
+		}
+		if(requestCode==REQUEST_DATE){
+			Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
+			mCrime.setmDate(date);
+			mDateButton.setText(DateFormat.format("yyyy-MM-dd hh:mm:ssaa", mCrime.getmDate()).toString());
+		}
 	}
 	
 	@Override
@@ -77,7 +93,8 @@ public class CrimeFragment extends Fragment {
 			@Override
 			public void onClick(View v) {
 				FragmentManager fm = getActivity().getSupportFragmentManager();
-				DatePickerFragment dialog = new DatePickerFragment();
+				DatePickerFragment dialog = DatePickerFragment.newInstance(mCrime.getmDate());
+				dialog.setTargetFragment(CrimeFragment.this, REQUEST_DATE);
 				dialog.show(fm, DIALOG_DATE);
 			}
 		});
