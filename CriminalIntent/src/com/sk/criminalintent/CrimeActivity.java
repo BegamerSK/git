@@ -2,6 +2,7 @@ package com.sk.criminalintent;
 
 import java.util.UUID;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 
 public class CrimeActivity extends SimpleFragmentActivity {
@@ -19,5 +20,11 @@ public class CrimeActivity extends SimpleFragmentActivity {
 //		getMenuInflater().inflate(R.menu.crime, menu);
 //		return true;
 //	}
+	
+	@Override
+	protected void onActivityResult(int arg0, int arg1, Intent arg2) {
+		super.onActivityResult(arg0, arg1, arg2);
+		System.out.println("CrimeActivity.onActivityResult");
+	}
 
 }
