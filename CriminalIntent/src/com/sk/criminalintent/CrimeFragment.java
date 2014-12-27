@@ -61,6 +61,12 @@ public class CrimeFragment extends Fragment {
 	
 	
 	@Override
+	public void onPause() {
+		super.onPause();
+		CrimeLab.get(getActivity()).saveCrimes();
+	}
+	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//UUID id = (UUID) getActivity().getIntent().getSerializableExtra(EXTRA_CRIME_ID);
