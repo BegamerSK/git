@@ -3,15 +3,19 @@ package com.sk.criminalintent;
 import java.util.Date;
 import java.util.UUID;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -40,12 +44,30 @@ public class CrimeFragment extends Fragment {
 		return fragment;
 	}
 	
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch(item.getItemId()){
+		
+		case android.R.id.home:
+			if(NavUtils.getParentActivityName(getActivity())!=null){
+				NavUtils.navigateUpFromSameTask(getActivity());
+			}
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		//UUID id = (UUID) getActivity().getIntent().getSerializableExtra(EXTRA_CRIME_ID);
 		UUID id = (UUID) getArguments().getSerializable(EXTRA_CRIME_ID);
 		mCrime = CrimeLab.get(getActivity()).getCrime(id);
+		
+		setHasOptionsMenu(true);
 	}
 	
 	@Override
@@ -60,10 +82,16 @@ public class CrimeFragment extends Fragment {
 		}
 	}
 	
+	
+	@TargetApi(11)
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_crime, container,false);
+		
+		if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.HONEYCOMB&&NavUtils.getParentActivityName(getActivity())!=null){
+			getActivity().getActionBar().setDisplayHomeAsUpEnabled(true);
+		}
 		
 		mTitleField = (EditText) view.findViewById(R.id.crime_title);
 		mTitleField.setText(mCrime.getmTitle());
