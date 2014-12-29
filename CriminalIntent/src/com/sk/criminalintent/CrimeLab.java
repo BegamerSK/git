@@ -1,10 +1,7 @@
 package com.sk.criminalintent;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
-
-import org.json.JSONException;
 
 import android.content.Context;
 import android.util.Log;
@@ -80,10 +77,14 @@ public class CrimeLab {
 			mSerializer.saveCrimes(mCrimes);
 			Log.d(TAG, "crimes saved to file");
 			return true;
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Log.e(TAG,"Error saving crimes: ", e);
 			return false;
 		}
+	}
+	
+	public void deleteCrime(Crime c){
+		mCrimes.remove(c);
 	}
 	
 }

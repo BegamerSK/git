@@ -24,10 +24,10 @@ public class CriminalIntentJSONSerializer {
 		this.mFileName = mFileName;
 	}
 	
-	public void saveCrimes(ArrayList<Crime> crimes) throws IOException{
+	public void saveCrimes(ArrayList<Crime> crimes) throws IOException, JSONException{
 		JSONArray array = new JSONArray();
 		for(Crime c:crimes){
-			array.put(c);
+			array.put(c.toJSON());
 		}
 		Writer writer = null;
 		try {
@@ -45,7 +45,6 @@ public class CriminalIntentJSONSerializer {
 	public ArrayList<Crime> loadCrimes() throws IOException, JSONException{
 		ArrayList<Crime> crimes = new ArrayList<Crime>();
 		BufferedReader reader = null;
-		
 		try {
 			InputStream in = mContext.openFileInput(mFileName);
 			reader = new BufferedReader(new InputStreamReader(in));
@@ -54,23 +53,18 @@ public class CriminalIntentJSONSerializer {
 			while((line=reader.readLine())!=null){
 				jsonString.append(line);
 			}
-			
 			JSONArray array = (JSONArray) new JSONTokener(jsonString.toString()).nextValue();
 			for(int i=0;i<array.length();i++){
+				System.out.println(array.getJSONObject(i));
 				crimes.add(new Crime(array.getJSONObject(i)));
 			}
-			
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
 			if(reader!=null){
 				reader.close();
 			}
 		}
-		
-		
-		
 		return crimes;
 	}
 	

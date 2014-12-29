@@ -31,6 +31,7 @@ public class Crime {
 	
 	public Crime(JSONObject json) throws JSONException{
 		mId = UUID.fromString(json.getString(JSON_ID));
+		System.out.println("mId: "+mId);
 		if(json.has(JSON_TITLE)){
 			mTitle = json.getString(JSON_TITLE);
 		}

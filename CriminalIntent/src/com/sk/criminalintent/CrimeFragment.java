@@ -6,6 +6,8 @@ import java.util.UUID;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -24,12 +26,15 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageButton;
 
 public class CrimeFragment extends Fragment {
 	private Crime mCrime;
 	private EditText mTitleField;
 	private Button mDateButton;
 	private CheckBox mSolvedCheckBox;
+	
+	private ImageButton photoButton;
 	
 	public static final String EXTRA_CRIME_ID = "com.sk.crime.id";
 	private static final String DIALOG_DATE = "com.sk.date";
@@ -63,6 +68,7 @@ public class CrimeFragment extends Fragment {
 	@Override
 	public void onPause() {
 		super.onPause();
+		System.out.println("Crimes is saved!!!!");
 		CrimeLab.get(getActivity()).saveCrimes();
 	}
 	
@@ -81,7 +87,7 @@ public class CrimeFragment extends Fragment {
 		if(resultCode!=Activity.RESULT_OK){
 			return;
 		}
-		if(requestCode==REQUEST_DATE){
+		if(requestCode==REQUEST_DATE){//回来更新修改后的日期啊
 			Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
 			mCrime.setmDate(date);
 			mDateButton.setText(DateFormat.format("yyyy-MM-dd hh:mm:ssaa", mCrime.getmDate()).toString());
@@ -121,7 +127,6 @@ public class CrimeFragment extends Fragment {
 		});
 		mDateButton = (Button) view.findViewById(R.id.crime_date);
 		mDateButton.setText(DateFormat.format("yyyy-MM-dd hh:mm:ssaa", mCrime.getmDate()).toString());
-		//mDateButton.setEnabled(false);
 		mDateButton.setOnClickListener(new OnClickListener() {
 			
 			@Override
@@ -143,6 +148,27 @@ public class CrimeFragment extends Fragment {
 				
 			}
 		});
+		
+		photoButton = (ImageButton) view.findViewById(R.id.crime_imageButton);
+		photoButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(getActivity(),CrimeCaremaAcivity.class);
+				startActivity(i);
+			}
+		});
+		
+		PackageManager pm = getActivity().getPackageManager();
+		boolean hasACamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)||
+				pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)||
+				Build.VERSION.SDK_INT>Build.VERSION_CODES.GINGERBREAD||
+				Camera.getNumberOfCameras()>0;
+				
+		if(!hasACamera){
+			photoButton.setEnabled(false);
+		}
+		
 		
 		return view;
 	}

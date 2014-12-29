@@ -20,5 +20,6 @@
 	<string name="subtitle">If you see something,say something.</string>
 	<string name="delete_crime">Delete</string>
 	<string name="_crime_">没有crime记录可以显示</string>
+	<string name="take">Take!</string>
 	
 </resources>
