@@ -17,6 +17,8 @@ public class PictureUtils {
 		float destWith = display.getWidth();
 		float destHeight = display.getHeight();
 		
+		System.out.println("destWith: "+destWith+"   destHeight:"+destHeight);
+		
 		
 		BitmapFactory.Options options = new Options();
 		options.inJustDecodeBounds = true;
@@ -24,15 +26,21 @@ public class PictureUtils {
 		
 		float srcWidth = options.outWidth;
 		float srcHeight = options.outHeight;
+		System.out.println("srcWidth: "+srcWidth+"   srcHeight:"+srcHeight);
 		int inSampleSize = 1;
 		if(srcHeight>destHeight||srcWidth>destWith){
+			System.out.println("PictureUtils   比大");
 			if(srcWidth>srcHeight){
 				inSampleSize = Math.round(srcHeight/destHeight);
 			}else{
 				inSampleSize = Math.round(srcWidth/destWith);
 			}
+		}else{
+			System.out.println("PictureUtils   不比大");
 		}
-		
+		System.out.println("inSampleSize: "+inSampleSize);
+//		inSampleSize = 32;
+//		System.out.println("after inSampleSize: "+inSampleSize);
 		options = new BitmapFactory.Options();
 		options.inSampleSize = inSampleSize;
 		

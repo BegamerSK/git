@@ -195,6 +195,17 @@ public class CrimeFragment extends Fragment {
 			}
 		});
 		
+		PackageManager pm = getActivity().getPackageManager();
+		boolean hasACamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)||
+				pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)||
+				Build.VERSION.SDK_INT>Build.VERSION_CODES.GINGERBREAD||
+				Camera.getNumberOfCameras()>0;
+				
+		if(!hasACamera){
+			photoButton.setEnabled(false);
+		}
+		
+		
 		photoView = (ImageView) view.findViewById(R.id.crime_imageView);
 		photoView.setOnClickListener(new OnClickListener() {
 			
@@ -210,18 +221,35 @@ public class CrimeFragment extends Fragment {
 			}
 		});
 		
-		
-		PackageManager pm = getActivity().getPackageManager();
-		boolean hasACamera = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA)||
-				pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)||
-				Build.VERSION.SDK_INT>Build.VERSION_CODES.GINGERBREAD||
-				Camera.getNumberOfCameras()>0;
-				
-		if(!hasACamera){
-			photoButton.setEnabled(false);
-		}
-		
-		
 		return view;
 	}
+	
+	
+	private String getCrimeReport(){
+		String solvedString = null;
+		if(mCrime.ismSolved()){
+			solvedString = getString(R.string.crime_report_solved);
+		}else{
+			solvedString = getString(R.string.crime_report_unsolved);
+		}
+		
+		String dateFormat = "EEE,MMM dd";
+		String dateString = DateFormat.format(dateFormat, mCrime.getmDate()).toString();
+		
+		String suspect = mCrime.getSuspect();
+		if(suspect==null){
+			suspect = getString(R.string.crime_report_no_suspect);
+		}else{
+			suspect = getString(R.string.crime_report_suspect, suspect);
+		}
+		
+		String report = getString(R.string.crime_report, mCrime.getmTitle(),dateString,solvedString,suspect);
+		
+		
+		return report;
+	}
+	
+	
+	
+	
 }
