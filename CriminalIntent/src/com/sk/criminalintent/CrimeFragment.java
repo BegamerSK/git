@@ -7,10 +7,13 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
@@ -38,12 +41,17 @@ public class CrimeFragment extends Fragment {
 	private ImageView photoView;
 	
 	private ImageButton photoButton;
+	private Button suspectButton;
+	
+	private Callbacks callbacks;
+	
 	public static final String TAG = "CrimeFragment";
 	public static final String EXTRA_CRIME_ID = "com.sk.crime.id";
 	private static final String DIALOG_DATE = "com.sk.date";
 	private static final String DIALOG_IMAGE = "com.sk.image";
 	private static final int REQUEST_DATE = 0;
 	private static final int REQUEST_PHOTO = 1;
+	private static final int REQUEST_CONTACT = 2;
 	
 	
 	public static CrimeFragment newInstance(UUID id){
@@ -117,6 +125,7 @@ public class CrimeFragment extends Fragment {
 			Date date = (Date) data.getSerializableExtra(DatePickerFragment.EXTRA_DATE);
 			mCrime.setmDate(date);
 			mDateButton.setText(DateFormat.format("yyyy-MM-dd hh:mm:ssaa", mCrime.getmDate()).toString());
+			callbacks.onCrimeUpdated(mCrime);
 		}else if(requestCode==REQUEST_PHOTO){
 			String filename = data.getStringExtra(CrimeCaremaFragment.EXTRA__PHOTO_FILENAME);
 			if(filename!=null){
@@ -124,8 +133,26 @@ public class CrimeFragment extends Fragment {
 				Photo p = new Photo(filename);
 				mCrime.setPhoto(p);
 				showPhoto();
+				callbacks.onCrimeUpdated(mCrime);
 				//Log.i(TAG, "Crime: "+mCrime.getmTitle()+" has a photo");
 			}
+		}else if(requestCode==REQUEST_CONTACT){
+			Uri contactUri = data.getData();
+			
+			String[] queryFields = new String[]{ContactsContract.Contacts.DISPLAY_NAME};
+			
+			Cursor  c = getActivity().getContentResolver().query(contactUri, queryFields, null, null, null);
+			if(c.getCount()==0){
+				c.close();
+				return;
+			}
+			
+			c.moveToFirst();
+			String suspect = c.getString(0);
+			mCrime.setSuspect(suspect);
+			suspectButton.setText(suspect);
+			c.close();
+			callbacks.onCrimeUpdated(mCrime);
 		}
 	}
 	
@@ -147,6 +174,8 @@ public class CrimeFragment extends Fragment {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				mCrime.setmTitle(s.toString());
+				callbacks.onCrimeUpdated(mCrime);
+				getActivity().setTitle(mCrime.getmTitle());
 			}
 			
 			@Override
@@ -180,7 +209,7 @@ public class CrimeFragment extends Fragment {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 				mCrime.setmSolved(isChecked);
-				
+				callbacks.onCrimeUpdated(mCrime);
 			}
 		});
 		
@@ -221,6 +250,35 @@ public class CrimeFragment extends Fragment {
 			}
 		});
 		
+		
+		Button reportButton = (Button) view.findViewById(R.id.crime_reportButtion);
+		reportButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(Intent.ACTION_SEND);
+				i.setType("text/plain");
+				i.putExtra(Intent.EXTRA_TEXT, getCrimeReport());
+				i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.crime_report_subject));
+				i = Intent.createChooser(i, getString(R.string.send_report));
+				startActivity(i);
+			}
+		});
+		
+		suspectButton = (Button) view.findViewById(R.id.crime_suspectButtion);
+		suspectButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(Intent.ACTION_PICK,ContactsContract.Contacts.CONTENT_URI);
+				startActivityForResult(i, REQUEST_CONTACT);
+			}
+		});
+		
+		if(mCrime.getSuspect()!=null){
+			suspectButton.setText(mCrime.getSuspect());
+		}
+		
 		return view;
 	}
 	
@@ -249,7 +307,20 @@ public class CrimeFragment extends Fragment {
 		return report;
 	}
 	
+	public interface Callbacks{
+		void onCrimeUpdated(Crime crime);
+	}
 	
+	@Override
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
+		callbacks = (Callbacks) activity;
+	}
 	
+	@Override
+	public void onDetach() {
+		super.onDetach();
+		callbacks = null;
+	}
 	
 }
